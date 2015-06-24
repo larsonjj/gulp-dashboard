@@ -1,0 +1,4 @@
+dashboard/generated
+node_modules
+npm-debug.log
+tmp

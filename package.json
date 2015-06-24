@@ -1,0 +1,36 @@
+{
+  "name": "gulp-dashboard",
+  "version": "1.0.0",
+  "description": "Generates a static dashboard based on data parsed within specified files",
+  "license": "MIT",
+  "repository": "larsonjj/gulp-dashboard",
+  "author": {
+    "name": "Jake Larson",
+    "email": "jake.j.larson@gmail.com",
+    "url": "github.com/larsonjj"
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "files": [
+    "index.js"
+  ],
+  "keywords": [
+    "gulpplugin"
+  ],
+  "dependencies": {
+    "gulp-util": "^3.0.4",
+    "through2": "^0.6.5",
+    "handlebars": "^3.0.0",
+    "underscore": "~1.8.2",
+    "underscore.string": "~3.0.3"
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "jade": "^1.10.0",
+    "swig": "^1.4.2",
+  }
+}
