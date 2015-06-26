@@ -71,13 +71,7 @@ gulp.task('default', function () {
       compiler: require('jade'),
       compilerOptions: {pretty: true, filename: true},
       dashTemplate: 'dashboard/dashboard-template.hbs',
-      moduleTemplate: 'dashboard/module-template.hbs',
-      includes: [{
-        cwd: 'dashboard/assets/',
-        src: [
-          '**/*'
-        ]
-      }]
+      moduleTemplate: 'dashboard/module-template.hbs'
     }))
     .pipe(gulp.dest('dist'));
 });

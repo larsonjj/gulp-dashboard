@@ -1,0 +1,6 @@
+{
+  "status": "development",
+  "category": "page",
+  "label": "Contact",
+  "link": "../test/fixtures/default/contact.html"
+}
