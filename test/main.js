@@ -2,9 +2,12 @@ var fs = require('fs');
 var path = require('path');
 var should = require('should');
 var gutil = require('gulp-util');
-var assert = require('stream-assert');
+// var assert = require('stream-assert');
 var gulp = require('gulp');
 var dashboard = require('../');
+var jade = require('jade');
+var nunjucks = require('nunjucks');
+
 
 var getFile = function getFile(filepath) {
   return new gutil.File({
@@ -48,11 +51,78 @@ describe('gulp-dashboard', function() {
   it('should handle multiple JSON files to render dashboard html file', function(done) {
     gulp.src(fixtures('*.json'))
       .pipe(dashboard({
-        dashTemplate: './dashboard/dashboard-template.hbs',
-        moduleTemplate: './dashboard/module-template.hbs'
+        dashTemplate: './dashboard/dashboard-template.hbs'
       }))
-      .pipe(gulp.dest('tmp'));
-    done();
+      .pipe(gulp.dest('tmp'))
+      .on('end', function() {
+        var expected = getFile('../tmp/dashboard.html');
+        should.exist(expected);
+        done();
+      });
+  });
+
+  it('should handle multiple JSON files to render module templates with Jade', function(done) {
+    gulp.src(fixtures('module/*.dash.{json,jade}'))
+      .pipe(dashboard({
+        dashTemplate: './dashboard/dashboard-template.hbs',
+        moduleTemplate: './dashboard/module-template.hbs',
+        compiler: jade
+      }))
+      .pipe(gulp.dest('tmp'))
+      .on('end', function() {
+        var expected = getFile('../tmp/module.html');
+        should.exist(expected);
+        done();
+      });
+  });
+
+  it('should handle multiple JSON files to render both Page and Module templates with Jade', function(done) {
+    gulp.src(fixtures('[**/*.json, **/*.dash.jade]'))
+      .pipe(dashboard({
+        dashTemplate: './dashboard/dashboard-template.hbs',
+        moduleTemplate: './dashboard/module-template.hbs',
+        compiler: jade
+      }))
+      .pipe(gulp.dest('tmp'))
+      .on('end', function() {
+        var expected = getFile('../tmp/module.html');
+        var expectedTwo = getFile('../tmp/dashboard.html');
+        should.exist(expected);
+        should.exist(expectedTwo);
+        done();
+      });
+  });
+
+  it('should handle multiple JSON files to render module templates with Nunjucks', function(done) {
+    gulp.src(fixtures('module/*.dash.{json,nunjucks}'))
+      .pipe(dashboard({
+        dashTemplate: './dashboard/dashboard-template.hbs',
+        moduleTemplate: './dashboard/module-template.hbs',
+        compiler: nunjucks
+      }))
+      .pipe(gulp.dest('tmp'))
+      .on('end', function() {
+        var expected = getFile('../tmp/module.html');
+        should.exist(expected);
+        done();
+      });
+  });
+
+  it('should handle multiple JSON files to render both Page and Module templates with Nunjucks', function(done) {
+    gulp.src(fixtures('[**/*.json, **/*.dash.nunjucks]'))
+      .pipe(dashboard({
+        dashTemplate: './dashboard/dashboard-template.hbs',
+        moduleTemplate: './dashboard/module-template.hbs',
+        compiler: nunjucks
+      }))
+      .pipe(gulp.dest('tmp'))
+      .on('end', function() {
+        var expected = getFile('../tmp/module.html');
+        var expectedTwo = getFile('../tmp/dashboard.html');
+        should.exist(expected);
+        should.exist(expectedTwo);
+        done();
+      });
   });
 
   it('should emit error on streamed file', function(done) {

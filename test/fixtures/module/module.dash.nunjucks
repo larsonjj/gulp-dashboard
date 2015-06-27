@@ -1,0 +1,4 @@
+{% import 'test/fixtures/module/module.nunjucks' as test %}
+
+{{ test.content() }}
+

@@ -4,9 +4,16 @@ var through = require('through2');
 var handlebars = require('handlebars');
 var path = require('path');
 var fs = require('fs');
-var _ = require('underscore');
+var defaultJade = require('jade');
+var _ = require('lodash');
 _.str = require('underscore.string');
 _.mixin(_.str.exports());
+
+// Cache all file statuses and categories
+var cache = {
+  statuses: [],
+  categories: []
+};
 
 module.exports = function (options) {
   // Merge task-specific and/or target-specific options with these defaults.
@@ -14,7 +21,7 @@ module.exports = function (options) {
     // Allows author to use custom compiler
     // NOTE: needs to have a compile() method or it won't work
     // Known supported compilers:
-    // Jade, Swig
+    // Jade, Nunjucks
     compiler: undefined,
     compilerOptions: {},
     generatedDir: 'dashboard/generated',
@@ -23,11 +30,10 @@ module.exports = function (options) {
     logo: '',
     data: {}
   }, options || {});
-
-  var filesArray = [];
+  var compiler = _options.compiler || defaultJade;
 
   // Data to pass to dashboard handlebars template
-   var handlebarsOptions = {
+  var handlebarsOptions = {
     categories: [],
     statuses: [],
     generated: [],
@@ -50,20 +56,29 @@ module.exports = function (options) {
     return fs.readFileSync(filepath).toString();
   };
 
-  // if (!_options.foo) {
-  //   throw new gutil.PluginError('gulp-dashboard', '`foo` required');
-  // }
-
   var renderToString = function(item) {
 
     try {
-      item.source = _options.compiler.render(item.source, _options.compilerOptions);
+      // If using nunjucks or any compiler with renderString method
+      if (compiler.renderString) {
+        compiler.configure('./', {
+          autoescape: true,
+          watch: false
+        });
+        item.source = compiler.renderString(item.source, _options.compilerOptions);
+      }
+      // If using jade or any other compiler with render method
+      else {
+        _options.compilerOptions.filename = item.name;
+        item.source = compiler.render(item.source, _options.compilerOptions);
+      }
     }
     catch (e) {
       new gutil.PluginError('gulp-dashboard', 'Data inside "' + item.name + '" will not compile');
       new gutil.PluginError('gulp-dashboard', '------- Details Below -------');
       new gutil.PluginError('gulp-dashboard', e);
     }
+
 
     // Add data to template
     item.data = _options.data;
@@ -86,13 +101,9 @@ module.exports = function (options) {
   // Remove duplicate filters on dashboard
   var dedupeFilters = function dedupeFilters() {
 
-    handlebarsOptions.categories = _.uniq(handlebarsOptions.categories, function(item) {
-      return item.val;
-    });
+    cache.categories = _.uniq(cache.categories, 'class');
 
-    handlebarsOptions.statuses = _.uniq(handlebarsOptions.statuses, function(item) {
-      return item.val;
-    });
+    cache.statuses = _.uniq(cache.statuses, 'class');
 
   };
 
@@ -102,6 +113,12 @@ module.exports = function (options) {
 
     // Compile template source
     var template = handlebars.compile(templateFile);
+
+    dedupeFilters();
+
+    // Include cache
+    handlebarsOptions.categories = cache.categories;
+    handlebarsOptions.statuses = cache.statuses;
 
     // Create HTML from template, data, and config
     return template(handlebarsOptions);
@@ -145,17 +162,15 @@ module.exports = function (options) {
         data.category = 'unknown';
       }
 
-      handlebarsOptions.categories.push({
+      cache.categories.push({
         class: data.category,
         name: _.titleize(data.category)
       });
-      handlebarsOptions.statuses.push({
+      cache.statuses.push({
         class: data.status,
         name: _.titleize(data.status)
       });
       handlebarsOptions.generated.push(data);
-
-      dedupeFilters();
 
       return {
         source: createDashboard(),
@@ -177,18 +192,11 @@ module.exports = function (options) {
     }
   };
 
-  function prefixStream(src) {
-    var stream = through();
-    stream.write(src);
-    return stream;
-  }
-
   return through.obj(function (file, enc, cb) {
     if (file.isNull()) {
       cb(null, file);
       return;
     }
-    console.log(file.path);
 
     if (file.isStream()) {
       cb(new gutil.PluginError('gulp-dashboard', 'Streaming not supported'));
@@ -201,14 +209,18 @@ module.exports = function (options) {
 
     try {
       if (renderObj.type === 'page') {
-        var newFile = new gutil.File({
+        newFile = new gutil.File({
           base: './',
           cwd: __dirname,
           path: path.join(__dirname, 'dashboard.html')
         });
       }
       else {
-        newFile.path = gutil.replaceExtension(file.path, '.html');
+        newFile = new gutil.File({
+          base: './',
+          cwd: __dirname,
+          path: gutil.replaceExtension(path.join(__dirname, path.basename(file.path).replace('.dash', '')), '.html')
+        });
       }
       newFile.contents = new Buffer(renderObj.source);
       this.push(newFile);
@@ -217,6 +229,12 @@ module.exports = function (options) {
       this.emit('error', new gutil.PluginError('gulp-dashboard', err));
     }
 
-    cb(null, file);
+    if (newFile && !_.isEmpty(newFile)) {
+      cb(null, newFile);
+    }
+    else {
+      cb(null, file);
+    }
+
   });
 };
