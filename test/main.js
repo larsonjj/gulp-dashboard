@@ -66,7 +66,8 @@ describe('gulp-dashboard', function() {
       .pipe(dashboard({
         dashTemplate: './dashboard/dashboard-template.hbs',
         moduleTemplate: './dashboard/module-template.hbs',
-        compiler: jade
+        compiler: jade,
+        compilerOptions: {pretty: true, filename: true}
       }))
       .pipe(gulp.dest('tmp'))
       .on('end', function() {

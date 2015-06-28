@@ -168,6 +168,8 @@ In lieu of a formal styleguide, take care to maintain the existing coding style.
 
 ## Release History
 
+<strong>v1.0.1</strong> - Fixed output pathing errors
+
 <strong>v1.0.0</strong> - Initial release
 
 ## License

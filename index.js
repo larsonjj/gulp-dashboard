@@ -212,14 +212,14 @@ module.exports = function (options) {
         newFile = new gutil.File({
           base: './',
           cwd: __dirname,
-          path: path.join(__dirname, 'dashboard.html')
+          path: 'dashboard.html'
         });
       }
       else {
         newFile = new gutil.File({
           base: './',
           cwd: __dirname,
-          path: gutil.replaceExtension(path.join(__dirname, path.basename(file.path).replace('.dash', '')), '.html')
+          path: gutil.replaceExtension(path.basename(file.path).replace('.dash', ''), '.html')
         });
       }
       newFile.contents = new Buffer(renderObj.source);
