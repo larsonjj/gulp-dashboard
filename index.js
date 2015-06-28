@@ -28,7 +28,8 @@ module.exports = function (options) {
     dashTemplate: 'node_modules/grunt-dashboard/dashboard/dashboard-template.hbs',
     moduleTemplate: 'node_modules/grunt-dashboard/dashboard/module-template.hbs',
     logo: '',
-    data: {}
+    data: {},
+    name: 'dashboard'
   }, options || {});
   var compiler = _options.compiler || defaultJade;
 
@@ -212,7 +213,7 @@ module.exports = function (options) {
         newFile = new gutil.File({
           base: './',
           cwd: __dirname,
-          path: 'dashboard.html'
+          path: _options.name + '.html'
         });
       }
       else {

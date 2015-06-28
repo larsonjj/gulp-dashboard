@@ -123,6 +123,12 @@ Default value: `node_modules/gulp-dashboard/dashboard/dashboard-template.hbs`
 
 A string value that is used to determine what handlebars template should be used for generating the dashboard.
 
+#### options.name
+Type: `String`
+Default value: `dashboard`
+
+A string value that is used to determine what the filename will be for the generated dashboard HTML.
+
 #### options.moduleTemplate
 Type: `String`
 Default value: `node_modules/gulp-dashboard/dashboard/module-template.hbs`
@@ -141,32 +147,12 @@ Default value: `{}`
 
 An object of custom variables that will be passed to the Handlebars template. Useful if you want to pass things like version information or other custom variables from your Gulp build process.
 
-#### options.includes
-Type: `Array`
-Default value:
-```
-[{
-    cwd: 'node_modules/gulp-dashboard/dashboard/assets/',
-    src: [
-        '**/*'
-    ]
-}]
-```
-
-An array of file objects that will be copied over with the dashboard html file to the same output directory.
-The file object properties available to you are:
-***cwd***
-directory assets are located in.
-
-***src***
-file search pattern, (*) is a wildcard that matches everything
-
-This would mostly be used for including external stylesheets or scripts you want to use within a custom dashboard template.
-
 ## Contributing
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Gulp](http://gulpjs.com/).
 
 ## Release History
+
+<strong>v1.0.2</strong> - Added `options.name` to allow user to change the filename output
 
 <strong>v1.0.1</strong> - Fixed output pathing errors
 
