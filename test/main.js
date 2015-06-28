@@ -48,6 +48,20 @@ describe('gulp-dashboard', function() {
     stream.end();
   });
 
+  it('should handle option.name to render dashboard html file with new name', function(done) {
+    gulp.src(fixtures('*.json'))
+      .pipe(dashboard({
+        dashTemplate: './dashboard/dashboard-template.hbs',
+        name: 'index'
+      }))
+      .pipe(gulp.dest('tmp'))
+      .on('end', function() {
+        var expected = getFile('../tmp/index.html');
+        should.exist(expected);
+        done();
+      });
+  });
+
   it('should handle multiple JSON files to render dashboard html file', function(done) {
     gulp.src(fixtures('*.json'))
       .pipe(dashboard({

@@ -1,6 +1,6 @@
 {
   "name": "gulp-dashboard",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Generates a static dashboard based on data parsed within specified files",
   "license": "MIT",
   "repository": "larsonjj/gulp-dashboard",
